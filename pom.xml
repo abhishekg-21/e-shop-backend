@@ -83,7 +83,16 @@
 	</dependencies>
 
 	<build>
-		<plugins>
+		<plugins>			
+    			<plugin>
+       				<groupId>org.apache.maven.plugins</groupId>
+        			<artifactId>maven-compiler-plugin</artifactId>
+        			<version>3.11.0</version> <!-- Use a recent version -->
+        			<configuration>
+            			<source>22</source> <!-- Set to your JDK version (e.g., 22 or 17) -->
+            			<target>22</target> <!-- Set to your JDK version (e.g., 22 or 17) -->
+        			</configuration>
+   			 </plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
