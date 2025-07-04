@@ -41,53 +41,54 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for API endpoints
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Enable CORS
-            .authorizeHttpRequests(authorize -> authorize
-                // --- Public Endpoints (accessible without authentication) ---
+                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for API endpoints
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Enable CORS
+                .authorizeHttpRequests(authorize -> authorize
+                        // --- Public Endpoints (accessible without authentication) ---
 
-                // Allow all static resources (CSS, JS, images, HTML pages)
-                .requestMatchers(
-                    "/", // Root path (index.html if mapped)
-                    "/index.html",
-                    "/login.html",
-                    "/register.html",
-                    "/products.html",
-                    "/cart.html",
-                    "/admin.html",
-                    "/users.html",
-                    "/css/**",
-                    "/js/**",
-                    "/images/**",
-                    "/favicon.ico"
-                ).permitAll()
+                        // Allow all static resources (CSS, JS, images, HTML pages)
+                        .requestMatchers(
+                                "/", // Root path (index.html if mapped)
+                                "/index.html",
+                                "/login.html",
+                                "/register.html",
+                                "/products.html",
+                                "/cart.html",
+                                "/admin.html",
+                                "/users.html",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/favicon.ico")
+                        .permitAll()
 
-                // Allow authentication API endpoints (login, register)
-                .requestMatchers("/api/auth/**").permitAll()
+                        // Allow authentication API endpoints (login, register)
+                        .requestMatchers("/api/auth/**").permitAll()
 
-                // Allow GET requests to products and categories API endpoints (publicly viewable)
-                // IMPORTANT: Ensure these are specific and come BEFORE any general authenticated() rule
-                .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
+                        // Allow GET requests to products and categories API endpoints (publicly
+                        // viewable)
+                        .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
 
-                // --- Authenticated Endpoints (require JWT token) ---
+                        // --- Authenticated Endpoints (require JWT token) ---
 
-                // User-specific API endpoints (require authentication and ROLE_USER)
-                .requestMatchers("/api/cart/**").hasRole("USER") // Cart operations require user role
-                .requestMatchers("/api/orders/**").hasRole("USER") // Order operations require user role
+                        // User-specific API endpoints (require authentication and ROLE_USER)
+                        .requestMatchers("/api/cart/**").hasRole("USER") // Cart operations require user role
+                        .requestMatchers("/api/orders/**").hasRole("USER") // Order operations require user role
 
-                // Admin-specific API endpoints (require authentication and ROLE_ADMIN)
-                .requestMatchers("/api/users/**").hasRole("ADMIN") // User management API
-                // Add other admin-specific APIs here: .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // Admin-specific API endpoints (require authentication and ROLE_ADMIN)
+                        .requestMatchers("/api/users/**").hasRole("ADMIN") // User management API
+                        // Add other admin-specific APIs here:
+                        // .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                // Any other request not explicitly permitted or role-based requires authentication
-                .anyRequest().authenticated()
-            )
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Use stateless sessions for JWT
-            )
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                        // Any other request not explicitly permitted or role-based requires
+                        // authentication
+                        .anyRequest().authenticated())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Use stateless sessions for JWT
+                )
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -113,18 +114,18 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Allow requests from your frontend's domain (localhost:5500 for dev, Netlify URL for prod)
+        // IMPORTANT: Add your Netlify URL here!
         configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:8080", // If you also run frontend from 8080
-            "http://127.0.0.1:8080",
-            "http://localhost:5500" // Add this for your current frontend testing
-            // Add your Netlify URL here when your frontend is deployed, e.g., "https://your-netlify-app-url.netlify.app"
+                "http://localhost:8080", // Keep for local Spring Boot testing
+                "http://127.0.0.1:8080", // Keep for local Spring Boot testing
+                "http://localhost:5500", // Keep for local frontend testing
+                "https://super-brioche-ed06e4.netlify.app" // <--- ADD THIS LINE
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
         configuration.setAllowCredentials(true); // Allow cookies, authorization headers, etc.
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration); // Apply CORS to all paths
-        return source;
+        return source; // <--- CORRECTED: Return the 'source' object
     }
 }
