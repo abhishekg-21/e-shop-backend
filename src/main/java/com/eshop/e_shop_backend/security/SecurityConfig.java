@@ -114,18 +114,25 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // IMPORTANT: Add your Netlify URL here!
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:8080", // Keep for local Spring Boot testing
-                "http://127.0.0.1:8080", // Keep for local Spring Boot testing
-                "http://localhost:5500", // Keep for local frontend testing
-                "https://super-brioche-ed06e4.netlify.app" // <--- ADD THIS LINE
-        ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
-        configuration.setAllowCredentials(true); // Allow cookies, authorization headers, etc.
+        configuration.setAllowedOrigins(List.of(
+                "https://super-brioche-ed06e4.netlify.app",
+                "http://localhost:8080",
+                "http://127.0.0.1:8080",
+                "http://localhost:5500"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(List.of(
+                "Authorization",
+                "Cache-Control",
+                "Content-Type",
+                "Access-Control-Allow-Origin",
+                "Access-Control-Allow-Headers"));
+        configuration.setExposedHeaders(List.of("Authorization")); // Optional: if you want to expose JWTs
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L); // Optional: cache preflight for 1 hour
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Apply CORS to all paths
-        return source; // <--- CORRECTED: Return the 'source' object
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
+
 }
