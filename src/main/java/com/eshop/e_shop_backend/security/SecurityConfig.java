@@ -116,6 +116,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
                 "https://super-brioche-ed06e4.netlify.app",
+		    "https://e-shop-frontend-eta.vercel.app"
                 "http://localhost:8080",
                 "http://127.0.0.1:8080",
                 "http://localhost:5500"));
